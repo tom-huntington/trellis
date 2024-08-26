@@ -5,20 +5,22 @@ from re import findall
 import functools
 from operator import add
 
-ex = "map { findall { r'(\d)' } b \ first add last . phi int . b } sum . b"
+ex = "map { findall { r'(\d)' } | first add last . phi | int } | sum"
 
 grammar = """\
 func: NON_WHITESPACE
 partial: func "{" (func | partial | call) "}"
 ?arg: func | partial | "(" call ")"
 trailing1: ("{" func* "}")?
-trailing2: func | call
+trailing2: _trailing3
+_trailing3: func | call
 call_nt: call_nt? arg* "." func trailing1 -> call
 call_t: call_nt? arg* func "\\\\" trailing2 -> call
-?call: call_nt | call_t
+call_p: call_nt? arg* "|" _trailing3
+?call: call_nt | call_t | call_p
 ?start: call | partial
 
-NON_WHITESPACE: /(?!\\\\)[^\s{}.]+/
+NON_WHITESPACE: /(?!\\\\)[^\s{}.|]+/
 
 %import common.CNAME -> NAME
 %import common.WS_INLINE
@@ -52,6 +54,10 @@ class Parser(Transformer):
         *args_, func, trailing = args
         func = permuted.get(func, func)
         r = func(*args_, *trailing.children)
+        return r
+    
+    def call_p(self, args):
+        r = b(*args)
         return r
 
 program = Parser().transform(ast)
