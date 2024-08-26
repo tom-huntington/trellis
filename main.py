@@ -34,12 +34,6 @@ NON_WHITESPACE: /(?!\\\\)[^\s{}.|]+/
 
 
 parser = Lark(grammar)
-for tok in parser.lex(ex):
-    print(tok.line, tok.column, repr(tok))
-
-ast = parser.parse(ex)
-print(ast.pretty())
-print(ast)
 
 
 class Parser(Transformer):
@@ -62,23 +56,28 @@ class Parser(Transformer):
     def call_p(self, args):
         r = b(*args)
         return r
-    
-    # def start(self, args):
-    #     for tree in args[:-1]:
-    #         package, a = tree.children
-    #         exec(f"from {package} import {a}")
-        
-        return args[-1]
 
-*imports, ast = ast.children
 
-for tree in imports:
+def evaluate_code(ex, args):
+    for tok in parser.lex(ex):
+        print(tok.line, tok.column, repr(tok))
+
+    ast = parser.parse(ex)
+    print(ast.pretty())
+    print(ast)
+
+    *imports, ast = ast.children
+
+    for tree in imports:
         package, a = tree.children
-        exec(f"from {package} import {a}")
+        exec(f"from {package} import {a}", globals())
+    
+    program = Parser().transform(ast)
+    output = program(*args)
+    print(output)
+    return output
 
-program = Parser().transform(ast)
-
-print(program(io.StringIO("""1abc2
+print(evaluate_code(ex, [io.StringIO("""1abc2
 pqr3stu8vwx
 a1b2c3d4e5f
-treb7uchet""")))
+treb7uchet""")]))
