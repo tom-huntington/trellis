@@ -3,19 +3,23 @@ from trellis_builtins import *
 import io
 import functools
 
+
 ex = """\
 from re import findall
-from operator import add
-map { findall { r'(\d)' } | first add last . phi | int } | sum
+from collections import Counter
+from operator import or_
+from math import prod
+map { findall { r'(\d+) (\w)' } | map { reverse | ( i &&& \ int ) } dict | Counter | Counter.values | prod }
 """
 
 grammar = """\
-func: NON_WHITESPACE
+fun: NON_WHITESPACE
+?func: fun | "(" call ")"
 partial: func "{" (func | partial | call) "}"
 ?arg: func | partial | "(" call ")"
 trailing1: ("{" func* "}")?
 trailing2: _trailing3
-_trailing3: func | call
+_trailing3: func | call | partial
 call_nt: call_nt? arg* "." func trailing1 -> call
 call_t: call_nt? arg* func "\\\\" trailing2 -> call
 call_p: call_nt? arg* "|" _trailing3
@@ -23,7 +27,7 @@ call_p: call_nt? arg* "|" _trailing3
 import: "from" NAME "import" NAME "\\n"
 start: import* (call | partial)
 
-NON_WHITESPACE: /(?!\\\\)[^\s{}.|]+/
+NON_WHITESPACE: /r?'[^']*'|(?![\\\\.])[^\s{}|]+/
 
 %import common.CNAME -> NAME
 %import common.WS
@@ -43,9 +47,11 @@ class Parser(Transformer):
             return p(arg)
         return functools.partial(func, arg)
 
-    def func(self, args):
-        token, = args 
-        return eval(token.value)
+    def fun(self, args):
+        token, = args
+        token = token.value
+        token = rename_illegal.get(token, token)
+        return eval(token)
     
     def call(self, args):
         *args_, func, trailing = args
@@ -74,10 +80,19 @@ def evaluate_code(ex, args):
     
     program = Parser().transform(ast)
     output = program(*args)
-    print(output)
+    print_iterable(output)
     return output
 
-print(evaluate_code(ex, [io.StringIO("""1abc2
-pqr3stu8vwx
-a1b2c3d4e5f
-treb7uchet""")]))
+def print_iterable(obj):
+    if isinstance(obj, (list, tuple, set, dict)):
+        print(obj)
+    elif hasattr(obj, '__iter__'):
+        print(list(obj))
+    else:
+        print(obj)
+
+evaluate_code(ex, [io.StringIO("""Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
+Game 2: 1 blue, 2 green; 3 green, 4 blue, 1 red; 1 green, 1 blue
+Game 3: 8 green, 6 blue, 20 red; 5 blue, 4 red, 13 green; 5 green, 1 red
+Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
+Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green""")])

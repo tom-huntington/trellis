@@ -3,6 +3,13 @@ import itertools
 
 scan = lambda x, x0, f: itertools.accumulate(x, f, initial=x0)
 scan1 = lambda x, f: itertools.accumulate(x, f)
+
+def i(arg):
+    return arg
+
+def reverse(xs):
+    return tuple(reversed(xs))
+
 def first(xs):
     return xs[0]
 
@@ -18,6 +25,16 @@ permuted = {
     map: lambda x, f: map(f, x)
 }
 
+def fanout(*funcs):
+    def fanout_r(xs):
+        assert len(funcs) == len(xs)
+        return tuple(f(x) for f, x in zip(funcs, xs))
+    return fanout_r
+
+rename_illegal = {
+    "&&&": "fanout",
+    "***": "parallel"
+}
 
 
 s = lambda f, g: lambda x: f(g(x), x)
