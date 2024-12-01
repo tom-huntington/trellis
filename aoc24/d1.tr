@@ -1,0 +1,9 @@
+from re import findall
+from operator import sub
+from operator import mul
+from collections import Counter
+
+map { findall { r'(\d+)' } | map { int } | list } | transpose
+bsplat \
+left ( left ( Counter | callable ) Phi \ map { invoke } ) Phi1 \
+map { mul } 
