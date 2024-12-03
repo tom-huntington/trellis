@@ -48,6 +48,7 @@ for puzzle in data['puzzles']:
         except Exception as e:
             print(f"❌ Test failed for puzzle: {name}, args: {args}, due to error: {e}")
             all_tests_passed = False
+            sys.exit(1)
             raise e
 
 # Exit with code 1 if any test failed
