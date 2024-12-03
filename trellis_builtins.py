@@ -37,12 +37,12 @@ def map_partial_r(f):
     return map_partial_r_inner
 
 partials = {
-    map: lambda f: map_partial_r, #lambda *x: map(f, *x),
+    # map: lambda f: map_partial_r, #lambda *x: map(f, *x),
     scan: lambda f: lambda x, x0: scan(x, x0, f),
     scan1: lambda f: lambda x: scan1(x, f),
 }
 permuted = {
-    # map: lambda x, f: map(f, x),
+    map: lambda x, f: map(f, x),
     # map2: lambda x, y, f: map(f, x, y)
 }
 
