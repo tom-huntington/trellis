@@ -1,6 +1,6 @@
 from lark import Lark, Transformer
 from trellis_builtins import *
-import io
+import os
 import functools
 
 
@@ -12,30 +12,8 @@ from math import prod
 map { findall { r'(\d+) (\w)' } | map { reverse | ( i &&& \ int ) } dict | Counter | Counter.values | prod }
 """
 
-grammar = """\
-fun: NON_WHITESPACE
-?func: fun | "(" call ")"
-partial: func "{" (func | partial | call) "}"
-?arg: func | partial | "(" call ")"
-trailing1: ("{" func* "}")?
-trailing2: _trailing3
-_trailing3: func | call | partial
-call_nt: call_nt? arg* "." func trailing1 -> call
-call_t: call_nt? arg* func "\\\\" trailing2 -> call
-call_p: call_nt? arg* "|" _trailing3
-?call: call_nt | call_t | call_p
-import: "from" NAME "import" NAME "\\n"
-start: import* (call | partial)
-
-NON_WHITESPACE: /r?'[^']*'|(?![\\\\.])[^\s{}|]+/
-
-%import common.CNAME -> NAME
-%import common.WS
-%import common.SIGNED_NUMBER
-%ignore WS
-%import common.ESCAPED_STRING
-"""
-
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'grammar.lark')) as f:
+    grammar = f.read()
 
 parser = Lark(grammar)
 

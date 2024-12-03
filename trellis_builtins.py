@@ -22,8 +22,18 @@ def first(xs):
 def last(xs):
     return xs[-1]
 
-def invoke(x, f):
+def invoke(f, x):
     return f(x)
+
+
+def invoke_f(x, f):
+    return f(x)
+
+def index(f, x):
+    return f[x]
+
+def index_f(x, f):
+    return f[x]
 
 def callable(x):
     def callable_result(i):
@@ -41,8 +51,13 @@ partials = {
     scan: lambda f: lambda x, x0: scan(x, x0, f),
     scan1: lambda f: lambda x: scan1(x, f),
 }
+
+
+def map_permuted(x, f):
+    return map(f, x)
+
 permuted = {
-    map: lambda x, f: map(f, x),
+    map: map_permuted #lambda x, f: map(f, x),
     # map2: lambda x, y, f: map(f, x, y)
 }
 
@@ -80,7 +95,36 @@ rename_illegal = {
 s = lambda f, g: lambda x: f(g(x), x)
 sig = lambda f, g: lambda x: g(x, f(x))
 phi = lambda f, g, h: lambda x: g(f(x), h(x))
-Phi = lambda f, g, h: lambda x: h(f(x), g(x))
+
+def Phi(f, g, h):
+    def Phi_r(x):
+        return h(f(x), g(x))
+    return Phi_r
+
+def delta(f, g):
+    def delta_r(x, y):
+        return g(f(x), y)
+    return delta_r
+
+
+def d(f, g):
+    def d_r(x, y):
+        return f(x, g(y))
+    return d_r
+
+
+def D(g, f):
+    def D_r(x, y):
+        tmp = g(y)
+        return f(x, tmp)
+    return D_r
+
+
+def N(f, g):
+    def N_r(x, y):
+        return g(x, f(x, y))
+    return N_r
+
 Phi1 = lambda f, g, h: lambda x, y: h(f(x, y), g(x, y))
 def b(f, *fs):
     def b_ret(*args):
@@ -105,3 +149,8 @@ def transpose(list_of_lists):
     return zip(*list_of_lists)
 
 
+def pair(a, b):
+    return (a, b)
+
+def map_f(x, f):
+    return map(f, x)
