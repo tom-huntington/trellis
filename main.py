@@ -1,4 +1,4 @@
-from lark import Lark, Transformer
+from lark import Lark, Transformer, Tree
 from trellis_builtins import *
 import os
 import functools
@@ -38,8 +38,14 @@ class Parser(Transformer):
         return r
     
     def call_p(self, args):
-        r = b(*args)
-        return r
+        index, type = next((i, arg) for i, arg in enumerate(args) if isinstance(arg, Tree)) 
+        if (type.data == "p"):
+            r = b(*args[:index], *args[index+1:])
+            return r
+        else:
+            assert type.data == "star_p"
+            assert len(args) == 3
+            return bsplat(args[0], args[-1])
 
 
 def evaluate_code(ex, args):

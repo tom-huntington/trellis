@@ -8,12 +8,16 @@ trailing2: _trailing3
 _trailing3: func | call | partial
 call_nt: call_nt? arg* "." func trailing1 -> call
 call_t: call_nt? arg* func "\\" trailing2 -> call
-call_p: call_nt? arg* "|" _trailing3
+call_p: call_nt? arg* (p | star_p) _trailing3
+p: "|"
+star_p: "*|"
 ?call: call_nt | call_t | call_p
 import: "from" NAME "import" NAME "\n"
 start: import* (call | partial)
 
-NON_WHITESPACE: /r?'[^']*'|(?![\\.])[^\s{}|\(\)]+/
+NON_WHITESPACE: /r?'[^']*'|(?![\\.|\*\|])[^\s{}|\(\)]+/
+// https://chatgpt.com/share/674ec08f-50e8-8003-99fb-3312c9760e4e
+
 
 %import common.CNAME -> NAME
 %import common.WS
