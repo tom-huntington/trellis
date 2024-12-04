@@ -139,10 +139,16 @@ def d2(f, g, h):
         return g(f(x), h(y))
     return d2_ret
 
-def s(f):
-    def s_ret(x):
+def w(f):
+    def w_ret(x):
         return f(x, x)
-    return s_ret
+    return w_ret
+
+def S(f, g):
+    def S_r(x):
+        y = f(x)
+        return g(x, y)
+    return S_r
 
 
 def transpose(list_of_lists):
@@ -154,3 +160,9 @@ def pair(a, b):
 
 def map_f(x, f):
     return map(f, x)
+
+def read(x):
+    return x.read()
+
+def string(l):
+    return ''.join(l)

@@ -1,0 +1,2 @@
+from itertools import starmap
+read | str.splitlines | map { reversed | string } | list | ( len S \ enumerate ) | starmap { str.format { r"{1:<{0}}" } | str.format { r"{:>19}" } } | transpose | map { str.join { '' } }

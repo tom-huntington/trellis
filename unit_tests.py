@@ -38,18 +38,18 @@ for puzzle in data['puzzles']:
             case _:
                 args_ = args
         
-        try:
-            result = main.evaluate_code(code, args_)
-            if result == expected_result:
-                print(f"✅ Test passed for puzzle: {name}, args: {args}")
-            else:
-                print(f"❌ Test failed for puzzle: {name}, args: {args}, expected: {expected_result}, got: {result}")
-                all_tests_passed = False
-        except Exception as e:
-            print(f"❌ Test failed for puzzle: {name}, args: {args}, due to error: {e}")
+        # try:
+        result = main.evaluate_code(code, args_)
+        if result == expected_result:
+            print(f"✅ Test passed for puzzle: {name}, args: {args}")
+        else:
+            print(f"❌ Test failed for puzzle: {name}, args: {args}, expected: {expected_result}, got: {result}")
             all_tests_passed = False
-            sys.exit(1)
-            raise e
+        # except Exception as e:
+        #     print(f"❌ Test failed for puzzle: {name}, args: {args}, due to error: {e}")
+        #     all_tests_passed = False
+        #     sys.exit(1)
+        #     raise e
 
 # Exit with code 1 if any test failed
 if not all_tests_passed:

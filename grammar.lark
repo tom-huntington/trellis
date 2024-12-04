@@ -1,5 +1,7 @@
 
-fun: NON_WHITESPACE
+
+
+fun: NON_WHITESPACE | MESCAPED_STRINGD | MESCAPED_STRING //MYSTRING //ESCAPED_STRING
 ?func: fun | "(" call ")"
 partial: func "{" (func | partial | call) "}"
 ?arg: func | partial | "(" call ")"
@@ -12,16 +14,24 @@ call_p: call_nt? arg* (p | star_p) _trailing3
 p: "|"
 star_p: "*|"
 ?call: call_nt | call_t | call_p
-import: "from" NAME "import" NAME "\n"
-start: import* (call | partial)
 
-NON_WHITESPACE: /r?'[^']*'|(?![\\.|\*\|])[^\s{}|\(\)]+/
+start: call | partial
+
+NON_WHITESPACE: /(?![\\.|\*\|])[^\s{}|\(\)"]+( |\n)/
+MYSTRING: /r?'[^']*'/
+
+_MSTRING_INNER: /.*?/
+_MSTRING_ESC_INNER: _MSTRING_INNER /(?<!\\)(\\\\)*?/
+
+MESCAPED_STRING : "r"? "'" _MSTRING_ESC_INNER "'"
+MESCAPED_STRINGD : "r"? "\"" _MSTRING_ESC_INNER "\""
+//NON_WHITESPACE: /r?'[^']*'|(?![\\.|\*\|])[^\s{}|\(\)"]+/
 // https://chatgpt.com/share/674ec08f-50e8-8003-99fb-3312c9760e4e
 
 
 %import common.CNAME -> NAME
 %import common.WS
-%import common.SIGNED_NUMBER
+//%import common.SIGNED_NUMBER
 %ignore WS
 %import common.ESCAPED_STRING
 
