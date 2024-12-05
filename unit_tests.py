@@ -1,4 +1,4 @@
-import toml
+import tomllib
 import sys
 import os
 import main
@@ -6,8 +6,8 @@ import io
 
 # Load the TOML file
 toml_file = 'puzzles.toml'
-with open(toml_file, 'r') as f:
-    data = toml.load(f)
+with open(toml_file, 'rb') as f:
+    data = tomllib.load(f)
 
 # Track if any test fails
 all_tests_passed = True
