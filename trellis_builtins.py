@@ -22,8 +22,8 @@ def first(xs):
 def last(xs):
     return xs[-1]
 
-def invoke(f, x):
-    return f(x)
+def invoke(f, *args):
+    return f(*args)
 
 
 def invoke_f(x, f):
@@ -46,7 +46,19 @@ def map_partial_r(f):
         return map(f, *x)
     return map_partial_r_inner
 
+def split(d):
+    def split_r(s):
+        return str.split(s, d)
+    return split_r
+
+def _batched(n):
+    def _batched_r(it):
+        return itertools.batched(it, n)
+    return _batched_r
+
 partials = {
+    split: split, 
+    itertools.batched: _batched,
     # map: lambda f: map_partial_r, #lambda *x: map(f, *x),
     scan: lambda f: lambda x, x0: scan(x, x0, f),
     scan1: lambda f: lambda x: scan1(x, f),
@@ -57,7 +69,7 @@ def map_permuted(x, f):
     return map(f, x)
 
 permuted = {
-    map: map_permuted #lambda x, f: map(f, x),
+    # map: map_permuted #lambda x, f: map(f, x),
     # map2: lambda x, y, f: map(f, x, y)
 }
 
@@ -88,13 +100,26 @@ def parallel(*funcs):
 
 rename_illegal = {
     "&&&": "fanout",
-    "***": "parallel"
+    "***": "parallel",
+    "in": "in_",
+    "sorted": "sorted_",
 }
 
 
 s = lambda f, g: lambda x: f(g(x), x)
-sig = lambda f, g: lambda x: g(x, f(x))
+def sig(f, g):
+    def sig_(x):
+        return g(x, f(x))
+    return sig_r
+
 phi = lambda f, g, h: lambda x: g(f(x), h(x))
+
+def Psi(f, g, h):
+    def Psi_r(x, y):
+        tmp_x = f(x)
+        tmp_y = g(y) 
+        return h(tmp_x, tmp_y)
+    return Psi_r
 
 def Phi(f, g, h):
     def Phi_r(x):
@@ -105,7 +130,6 @@ def delta(f, g):
     def delta_r(x, y):
         return g(f(x), y)
     return delta_r
-
 
 def d(f, g):
     def d_r(x, y):
@@ -120,10 +144,18 @@ def D(g, f):
     return D_r
 
 
+
+
+
 def N(f, g):
     def N_r(x, y):
         return g(x, f(x, y))
     return N_r
+
+def v(f, g):
+    def v_r(x, y):
+        return f(x, g(x, y))
+    return v_r
 
 Phi1 = lambda f, g, h: lambda x, y: h(f(x, y), g(x, y))
 def b(f, *fs):
@@ -151,6 +183,12 @@ def S(f, g):
     return S_r
 
 
+def s(f, g):
+    def s_r(x):
+        y = g(x)
+        return f(x, y)
+    return s_r
+
 def transpose(list_of_lists):
     return zip(*list_of_lists)
 
@@ -166,3 +204,29 @@ def read(x):
 
 def string(l):
     return ''.join(l)
+
+def tuple2(a, b):
+    return (a, b)
+
+def in_(a, b):
+    return a in b
+
+def in_f(a, b):
+    return b in a
+
+def sorted_(*args):
+    if len(args) == 1:
+        return sorted(args[0])
+    if len(args) == 2:
+        return sorted(args[0], key=args[1])
+    assert 0, f"sorted has {len(args)}"
+
+
+def c(f):
+    def c_r(x, y):
+        return f(y, x)
+    return c_r
+
+
+def middle(l):
+    return l[len(l) // 2]

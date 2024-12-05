@@ -16,13 +16,21 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'grammar.lark
 
 parser = Lark(grammar)
 
+def _reverse_partial(func, *args):
+    def _reverse_partial_r(*fargs):
+        return func(*fargs, *args)
+    return _reverse_partial_r
 
 class Parser(Transformer):
+    def reverse_partial(self, args):
+        func, *args_ = args
+        return _reverse_partial(func, *args_)
+
     def partial(self, args):
-        func, arg = args
+        func, *args_ = args
         if (p := partials.get(func, None)):
-            return p(arg)
-        return functools.partial(func, arg)
+            return p(*args_)
+        return functools.partial(func, *args_)
 
     def fun(self, args):
         token, = args

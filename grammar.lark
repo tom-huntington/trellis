@@ -2,12 +2,13 @@
 
 
 fun: NON_WHITESPACE | MESCAPED_STRINGD | MESCAPED_STRING //MYSTRING //ESCAPED_STRING
-?func: fun | "(" call ")"
-partial: func "{" (func | partial | call) "}"
-?arg: func | partial | "(" call ")"
+?func: fun | "(" (call | func)  ")"
+partial: func "{" (func | partial | reverse_partial | call)+ "}"
+reverse_partial: func "[" (func | partial | reverse_partial | call)+ "]"
+?arg: func | partial | reverse_partial | "(" call ")"
 trailing1: ("{" func* "}")?
 trailing2: _trailing3
-_trailing3: func | call | partial
+_trailing3: func | call | partial | reverse_partial
 call_nt: call_nt? arg* "." func trailing1 -> call
 call_t: call_nt? arg* func "\\" trailing2 -> call
 call_p: call_nt? arg* (p | star_p) _trailing3
@@ -17,7 +18,7 @@ star_p: "*|"
 
 start: call | partial
 
-NON_WHITESPACE: /(?![\\.|\*\|])[^\s{}|\(\)"]+( |\n)/
+NON_WHITESPACE: /(?![\\.|\*\|])[^\s{}|\(\)"\[\]]+( |\n)/
 MYSTRING: /r?'[^']*'/
 
 _MSTRING_INNER: /.*?/
