@@ -1,0 +1,11 @@
+from functools import partial
+from itertools import starmap
+
+read | str.splitlines | map { enumerate | list } | enumerate | starmap { ( ( partial { tuple2 *| complex } | list_lens { 0 } | partial { map | list } ) delta \ invoke ) } | flatten | dict
+| ( ( find_key [ '^' ] | pair [ -1j ] ) S \ tuple2 ) 
+| star_iterate {
+def _(a, b):
+    return a
+
+}
+| take_while [ ( in_f | not ) . splat ]

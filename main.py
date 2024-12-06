@@ -22,6 +22,15 @@ def _reverse_partial(func, *args):
     return _reverse_partial_r
 
 class Parser(Transformer):
+    def def_(self, args):
+        arg, = args
+        exec(arg.value, globals())
+        return _
+    
+    def lambda_(self, args):
+        arg, = args
+        return eval(arg.value)
+
     def reverse_partial(self, args):
         func, *args_ = args
         return _reverse_partial(func, *args_)

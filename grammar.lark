@@ -2,8 +2,12 @@
 
 
 fun: NON_WHITESPACE | MESCAPED_STRINGD | MESCAPED_STRING //MYSTRING //ESCAPED_STRING
-?func: fun | "(" (call | func)  ")"
-partial: func "{" (func | partial | reverse_partial | call)+ "}"
+?func: fun | "(" (call | func | lambda_ | def_)  ")"
+def_: DEF
+DEF . 2: /def _(.|\n)*\n\s*\r?\n/
+lambda_: LAMBDA
+LAMBDA . 1: /lambda (?:[^()]*\(.*?\)[^()]*|[^()]+)/
+partial: func "{" ((func | partial | reverse_partial | call)+ | def_) "}"
 reverse_partial: func "[" (func | partial | reverse_partial | call)+ "]"
 ?arg: func | partial | reverse_partial | "(" call ")"
 trailing1: ("{" func* "}")?
@@ -16,7 +20,7 @@ p: "|"
 star_p: "*|"
 ?call: call_nt | call_t | call_p
 
-start: call | partial
+start: call | partial | func
 
 NON_WHITESPACE: /(?![\\.|\*\|])[^\s{}|\(\)"\[\]]+( |\n)/
 MYSTRING: /r?'[^']*'/

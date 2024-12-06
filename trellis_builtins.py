@@ -103,14 +103,17 @@ rename_illegal = {
     "***": "parallel",
     "in": "in_",
     "sorted": "sorted_",
+    "not": "not_",
 }
 
 
 s = lambda f, g: lambda x: f(g(x), x)
 def sig(f, g):
-    def sig_(x):
+    def sig_r(x):
         return g(x, f(x))
     return sig_r
+
+sigma = sig
 
 phi = lambda f, g, h: lambda x: g(f(x), h(x))
 
@@ -208,6 +211,9 @@ def string(l):
 def tuple2(a, b):
     return (a, b)
 
+def pair(a, b):
+    return (a, b)
+
 def in_(a, b):
     return a in b
 
@@ -230,3 +236,39 @@ def c(f):
 
 def middle(l):
     return l[len(l) // 2]
+
+
+def list_lens(i_, f):
+    def list_lens_r(t):
+        return tuple(f(e) if i == i_ else e for i, e in enumerate(t))
+    return list_lens_r
+
+def flat_map(f, xs):
+    return [y for ys in xs for y in f(ys)]
+
+
+def flatten(ls):
+    return tuple(item for sublist in ls for item in sublist)
+
+def find_key(d, v):
+    return next(key for key, value in d.items() if value == v)
+
+def star_iterate(f, arg):
+    while True:
+        yield arg
+        arg = f(*arg)
+
+def take_while(it, pred):
+    while True:
+        x = next(it)
+        if not pred(x): return
+        yield x
+
+def conditional(pred, true_, false_):
+    def conditional_r(*args):
+        if pred(*args): return true_(*args)
+        else: return false_(*args)
+    return conditional_r
+
+def not_(b):
+    return not b
